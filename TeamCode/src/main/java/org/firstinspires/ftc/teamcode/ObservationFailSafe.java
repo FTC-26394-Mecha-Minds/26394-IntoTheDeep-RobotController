@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@Autonomous (name = "AutoRedObservation", preselectTeleOp = "MechaRedTeleOp")
-public class AutoRedObservation extends LinearOpMode {
+@Autonomous (name = "ObservationFailSafe", preselectTeleOp = "MechaRedTeleOp")
+public class ObservationFailSafe extends LinearOpMode {
     private DcMotor frontLeft;
     private DcMotor backLeft;
     private DcMotor frontRight;
@@ -31,6 +31,7 @@ public class AutoRedObservation extends LinearOpMode {
     private float CurrentColor;
     private int leftPos;
     private int rightPos;
+
     @Override
     public void runOpMode() throws InterruptedException {
         frontLeft = hardwareMap.dcMotor.get("frontLeft");
@@ -73,37 +74,39 @@ public class AutoRedObservation extends LinearOpMode {
 //                .build();
 
         waitForStart();
-
-        if (isStopRequested()) return;
-        drive(-300, -300, 0.5);
-        Thread.sleep(600);
+        leftExtension.setDirection(Servo.Direction.REVERSE);
+        rightPitch.setDirection(Servo.Direction.REVERSE);
+        leftExtension.setPosition(0.74);
+        rightExtension.setPosition(0.93);
+        leftPitch.setPosition(0.52);
+        rightPitch.setPosition(0.52);
+        Thread.sleep(500);
 
 //        drive.followTrajectory(myTrajectory);
 
 
+        }
+        public void drive ( int leftTarget, int rightTarget, double speed){
+            leftPos += leftTarget;
+            rightPos += rightTarget;
+
+
+            frontLeft.setTargetPosition(leftPos);
+            backLeft.setTargetPosition(leftPos);
+            frontRight.setTargetPosition(rightPos);
+            backRight.setTargetPosition(rightPos);
+
+            frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            frontLeft.setPower(speed);
+            backRight.setPower(speed);
+            frontRight.setPower(speed);
+            backLeft.setPower(speed);
+
+
+        }
+
     }
-    public void drive(int leftTarget, int rightTarget, double speed){
-        leftPos += leftTarget;
-        rightPos += rightTarget;
-
-
-        frontLeft.setTargetPosition(leftPos);
-        backLeft.setTargetPosition(leftPos);
-        frontRight.setTargetPosition(rightPos);
-        backRight.setTargetPosition(rightPos);
-
-        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        frontLeft.setPower(speed);
-        backRight.setPower(speed);
-        frontRight.setPower(speed);
-        backLeft.setPower(speed);
-
-
-    }
-
-}
-

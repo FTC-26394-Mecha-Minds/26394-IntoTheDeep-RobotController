@@ -16,8 +16,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 public class PIDFLoopOuttake extends OpMode {
     private PIDController PID;
 
-    public static double p = 0, i = 0, d = 0;
-    public static double f = 0;
+    public static double p = 0.009, i = 0, d = 0;
+    public static double f = 0.07;
 
     public static int target = 0;
 
@@ -31,7 +31,6 @@ public class PIDFLoopOuttake extends OpMode {
 
 
         rightOuttake = hardwareMap.get(DcMotorEx.class, "rightOuttake");
-
         leftOuttake = hardwareMap.get(DcMotorEx.class, "leftOuttake");
 
     }
@@ -40,18 +39,19 @@ public class PIDFLoopOuttake extends OpMode {
     public void loop() {
         PID.setPID(p, i, d);
         int leftPos = leftOuttake.getCurrentPosition();
-//        int rightPos = rightOuttake.getCurrentPosition();
+        int rightPos = rightOuttake.getCurrentPosition();
         double leftPID = PID.calculate(leftPos, target);
-//        double rightPID = PID.calculate(rightPos, target);
-        double feedforward = Math.cos(Math.toRadians(target/ticks_in_degree)) *f;
+        double rightPID = PID.calculate(rightPos, target);
+        double feedforward = Math.cos(Math.toRadians(target/ticks_in_degree)) * f;
 
         double leftPower = leftPID + feedforward;
-//        double rightPower = rightPID + feedforward;
+        double rightPower = rightPID + feedforward;
         leftOuttake.setPower(leftPower);
-//        rightOuttake.setPower(rightPower);
+        rightOuttake.setPower(rightPower);
 
         telemetry.addData("Left Position", leftPos);
-//        telemetry.addData("Right Position", rightPos);
+        telemetry.addData("Target", target);
+        telemetry.addData("Right Position", rightPos);
         telemetry.update();
     }
 }
